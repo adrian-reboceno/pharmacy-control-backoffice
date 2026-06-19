@@ -36,6 +36,12 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/catalog/units/units-list.component').then(m => m.UnitsListComponent),
       },
+      {
+        path: 'catalog/presentations',
+        canActivate: [permissionGuard('catalog.presentations.manage')],
+        loadComponent: () =>
+          import('./features/catalog/presentations/presentations-list.component').then(m => m.PresentationsListComponent),
+      },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
     ],
   },
