@@ -1,0 +1,51 @@
+.units-page { width: 100%; }
+
+.page-header {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  margin-bottom: 16px; flex-wrap: wrap; gap: 12px;
+}
+.page-title { font-size: 1.4rem; font-weight: 700; color: #212529; margin: 0 0 6px; }
+.breadcrumb {
+  display: flex; align-items: center; gap: 4px;
+  font-size: 0.82rem; color: #6c757d;
+  mat-icon { font-size: 14px; width: 14px; height: 14px; }
+  .bc-active { color: #405189; font-weight: 500; }
+}
+
+.btn-primary {
+  display: flex; align-items: center; gap: 6px;
+  padding: 9px 16px; border-radius: 8px;
+  font-size: 0.85rem; font-weight: 600;
+  cursor: pointer; border: none;
+  background: #405189; color: white;
+  transition: background 0.15s;
+  mat-icon { font-size: 18px; width: 18px; height: 18px; }
+}
+.btn-primary:hover { background: #344167; }
+
+.filter-bar {
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 16px; flex-wrap: wrap;
+}
+.filter-separator { width: 1px; height: 20px; background: #e9ebec; margin: 0 4px; }
+.filter-chip {
+  padding: 6px 14px; border-radius: 20px;
+  border: 1px solid #e9ebec; background: white;
+  color: #6c757d; font-size: 0.82rem; font-weight: 500;
+  cursor: pointer; transition: all 0.15s;
+}
+.filter-chip:hover { background: #f3f6f9; }
+.filter-chip.active { background: #405189; color: white; border-color: #405189; }
+
+.symbol-badge {
+  font-family: monospace; font-size: 0.85rem; font-weight: 700;
+  color: #405189; background: #eef0fa;
+  padding: 2px 10px; border-radius: 6px;
+}
+
+.type-badge {
+  display: inline-block; padding: 3px 10px; border-radius: 14px;
+  font-size: 0.74rem; font-weight: 600;
+}
+.type-quantity      { background: #e3f4fc; color: #299cdb; }
+.type-concentration { background: #eef0fa; color: #405189; }

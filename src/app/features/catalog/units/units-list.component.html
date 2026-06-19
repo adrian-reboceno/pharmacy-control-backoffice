@@ -1,0 +1,84 @@
+<div class="units-page">
+
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Unidades de medida</h1>
+      <nav class="breadcrumb">
+        <span>PharmaControl</span>
+        <mat-icon>chevron_right</mat-icon>
+        <span>Catálogo</span>
+        <mat-icon>chevron_right</mat-icon>
+        <span class="bc-active">Unidades de medida</span>
+      </nav>
+    </div>
+    <button class="btn-primary" (click)="openCreate()">
+      <mat-icon>add</mat-icon>
+      Nueva unidad
+    </button>
+  </div>
+
+  <div class="filter-bar">
+    <button class="filter-chip" [class.active]="filterType() === undefined" (click)="setType(undefined)">
+      Todos los tipos
+    </button>
+    <button class="filter-chip" [class.active]="filterType() === 'QUANTITY'" (click)="setType('QUANTITY')">
+      Cantidad
+    </button>
+    <button class="filter-chip" [class.active]="filterType() === 'CONCENTRATION'" (click)="setType('CONCENTRATION')">
+      Concentración / Dosis
+    </button>
+    <div class="filter-separator"></div>
+    <button class="filter-chip" [class.active]="filterActive() === undefined" (click)="setActive(undefined)">
+      Todos los estados
+    </button>
+    <button class="filter-chip" [class.active]="filterActive() === true" (click)="setActive(true)">
+      Activas
+    </button>
+    <button class="filter-chip" [class.active]="filterActive() === false" (click)="setActive(false)">
+      Inactivas
+    </button>
+  </div>
+
+  <app-data-table
+    [columns]="columns"
+    [rows]="items()"
+    [total]="total()"
+    [loading]="loading()"
+    (pageChange)="onPageChange($event)">
+
+    <!-- Columna: Símbolo -->
+    <ng-template #symbolTpl let-row>
+      <span class="symbol-badge">{{ row.symbol }}</span>
+    </ng-template>
+
+    <!-- Columna: Tipo -->
+    <ng-template #typeTpl let-row>
+      <span class="type-badge type-{{ row.type | lowercase }}">
+        {{ row.type_label }}
+      </span>
+    </ng-template>
+
+    <!-- Columna: Estado -->
+    <ng-template #statusTpl let-row>
+      <span class="status-badge" [class.inactive]="!row.is_active">
+        {{ row.is_active ? 'Activa' : 'Inactiva' }}
+      </span>
+    </ng-template>
+
+    <!-- Acciones -->
+    <ng-template #actionsTemplate let-row>
+      <div class="row-actions">
+        <button class="icon-btn" matTooltip="Editar" (click)="openEdit(row)">
+          <mat-icon>edit</mat-icon>
+        </button>
+        @if (row.is_active) {
+          <button class="icon-btn danger" matTooltip="Desactivar" (click)="deactivate(row)">
+            <mat-icon>block</mat-icon>
+          </button>
+        }
+      </div>
+    </ng-template>
+
+  </app-data-table>
+
+</div>
