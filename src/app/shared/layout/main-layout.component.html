@@ -1,0 +1,81 @@
+<div class="app-wrapper">
+
+  <header class="topbar">
+
+    <div class="topbar-brand">
+      <div class="brand-icon">
+        <mat-icon>local_pharmacy</mat-icon>
+      </div>
+      <span class="brand-name">PharmaControl</span>
+    </div>
+
+    <nav class="topbar-menu">
+      @for (item of visibleItems(); track item.label) {
+
+        @if (!item.children) {
+          <a class="menu-item"
+             [routerLink]="item.route"
+             routerLinkActive="active"
+             [routerLinkActiveOptions]="{ exact: true }">
+            <mat-icon>{{ item.icon }}</mat-icon>
+            <span>{{ item.label }}</span>
+          </a>
+        } @else {
+          <div class="menu-item-dropdown" [matMenuTriggerFor]="childMenu">
+            <mat-icon>{{ item.icon }}</mat-icon>
+            <span>{{ item.label }}</span>
+            <mat-icon class="dropdown-arrow">expand_more</mat-icon>
+          </div>
+          <mat-menu #childMenu="matMenu">
+            @for (child of visibleChildren(item); track child.route) {
+              <a mat-menu-item [routerLink]="child.route" routerLinkActive="active-item">
+                <mat-icon>{{ child.icon }}</mat-icon>
+                <span>{{ child.label }}</span>
+              </a>
+            }
+          </mat-menu>
+        }
+      }
+    </nav>
+
+    <div class="topbar-spacer"></div>
+
+    <div class="topbar-actions">
+      <button class="icon-btn" matTooltip="Notificaciones">
+        <mat-icon matBadge="0" matBadgeSize="small" matBadgeColor="warn"
+                   [matBadgeHidden]="true">notifications_none</mat-icon>
+      </button>
+
+      <div class="topbar-divider"></div>
+
+      <button class="user-pill" [matMenuTriggerFor]="userMenu">
+        <div class="user-avatar">{{ userInitial() }}</div>
+        <div class="user-info">
+          <span class="user-name">{{ auth.currentUser()?.name }}</span>
+          <span class="user-role">Administrador</span>
+        </div>
+        <mat-icon class="user-chevron">keyboard_arrow_down</mat-icon>
+      </button>
+
+      <mat-menu #userMenu="matMenu" xPosition="before">
+        <div class="dropdown-header" (click)="$event.stopPropagation()">
+          <div class="dropdown-avatar">{{ userInitial() }}</div>
+          <div>
+            <p class="dropdown-name">{{ auth.currentUser()?.name }}</p>
+            <p class="dropdown-email">{{ auth.currentUser()?.email }}</p>
+          </div>
+        </div>
+        <mat-divider />
+        <button mat-menu-item (click)="logout()">
+          <mat-icon>logout</mat-icon>
+          <span>Cerrar sesión</span>
+        </button>
+      </mat-menu>
+    </div>
+  </header>
+
+  <main class="page-content">
+    <router-outlet />
+  </main>
+
+</div>

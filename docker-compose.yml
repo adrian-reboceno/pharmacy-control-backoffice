@@ -1,0 +1,67 @@
+services:
+
+  # ── Producción: build compilado servido por Nginx ──────────────────
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: server
+    container_name: pharma-frontend
+    restart: unless-stopped
+    ports:
+      - "4200:80"
+    networks:
+      - pharma-network
+    profiles:
+      - prod
+
+  # ── Desarrollo: hot-reload con ng serve ────────────────────────────
+  frontend-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: pharma-frontend-dev
+    restart: unless-stopped
+    ports:
+      - "4201:4200"
+    volumes:
+      - .:/app                  # código fuente montado desde WSL
+      - node_modules:/app/node_modules   # volumen anónimo — evita conflictos
+    command: >
+      sh -c "
+        if [ ! -f package.json ]; then
+          echo 'No se encontró package.json — ejecuta: docker compose run --rm init ng new ...'
+          exit 1
+        fi
+        npm install &&
+        ng serve --host 0.0.0.0 --poll 500
+      "
+    environment:
+      - NODE_ENV=development
+    networks:
+      - pharma-network
+    profiles:
+      - dev
+
+  # ── Init: crea el proyecto una sola vez ────────────────────────────
+  init:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: pharma-frontend-init
+    volumes:
+      - .:/app
+      - node_modules:/app/node_modules
+    working_dir: /app           # ng new crea la carpeta aquí primero
+    networks:
+      - pharma-network
+    profiles:
+      - init
+
+volumes:
+  node_modules:                 # volumen nombrado para node_modules
+
+networks:
+  pharma-network:
+    external: true
+    name: pharma-control_pharma-network

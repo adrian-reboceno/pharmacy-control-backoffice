@@ -1,0 +1,108 @@
+<div class="classifications-page">
+
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Clasificaciones LGS</h1>
+      <nav class="breadcrumb">
+        <span>PharmaControl</span>
+        <mat-icon>chevron_right</mat-icon>
+        <span>Catálogo</span>
+        <mat-icon>chevron_right</mat-icon>
+        <span class="bc-active">Clasificaciones</span>
+      </nav>
+    </div>
+  </div>
+
+  <div class="info-banner">
+    <mat-icon>gavel</mat-icon>
+    <span>Los 7 grupos del Art. 226 LGS son fijos por ley — no se pueden crear ni eliminar, solo configurar sus parámetros.</span>
+  </div>
+
+  <div class="filter-bar">
+    <button class="filter-chip" [class.active]="filterControlled() === undefined" (click)="setControlled(undefined)">
+      Todos
+    </button>
+    <button class="filter-chip controlled" [class.active]="filterControlled() === true" (click)="setControlled(true)">
+      <mat-icon>lock</mat-icon> Controlados (I–IV)
+    </button>
+    <button class="filter-chip" [class.active]="filterControlled() === false" (click)="setControlled(false)">
+      No controlados (V–VI)
+    </button>
+    <div class="filter-separator"></div>
+    <button class="filter-chip" [class.active]="filterActive() === undefined" (click)="setActive(undefined)">
+      Todos los estados
+    </button>
+    <button class="filter-chip" [class.active]="filterActive() === true" (click)="setActive(true)">
+      Activos
+    </button>
+    <button class="filter-chip" [class.active]="filterActive() === false" (click)="setActive(false)">
+      Inactivos
+    </button>
+  </div>
+
+  <app-data-table
+    [showSearch]="false"
+    [columns]="columns"
+    [rows]="items()"
+    [total]="total()"
+    [loading]="loading()"
+    (pageChange)="onPageChange($event)">
+
+    <!-- Columna: Grupo LGS -->
+    <ng-template #groupTpl let-row>
+      <span class="group-badge" [class.controlled]="row.is_controlled">
+        Grupo {{ row.lgs_group }}
+      </span>
+    </ng-template>
+
+    <!-- Columna: Tipo de receta -->
+    <ng-template #rxTpl let-row>
+      <span class="rx-badge rx-{{ row.prescription_type | lowercase }}">
+        {{ row.prescription_type_label }}
+      </span>
+    </ng-template>
+
+    <!-- Columna: Vigencia -->
+    <ng-template #validityTpl let-row>
+      @if (row.validity_days) {
+        <span>{{ row.validity_days }} días</span>
+      } @else {
+        <span class="text-muted">—</span>
+      }
+    </ng-template>
+
+    <!-- Columna: Control -->
+    <ng-template #controlTpl let-row>
+      @if (row.is_controlled) {
+        <span class="controlled-badge">
+          <mat-icon>lock</mat-icon> Controlado
+        </span>
+      } @else {
+        <span class="text-muted">Libre venta</span>
+      }
+    </ng-template>
+
+    <!-- Columna: Estado -->
+    <ng-template #statusTpl let-row>
+      <span class="status-badge" [class.inactive]="!row.is_active">
+        {{ row.is_active ? 'Activo' : 'Inactivo' }}
+      </span>
+    </ng-template>
+
+    <!-- Acciones -->
+    <ng-template #actionsTemplate let-row>
+      <div class="row-actions">
+        <button class="icon-btn" matTooltip="Editar" (click)="openEdit(row)">
+          <mat-icon>edit</mat-icon>
+        </button>
+        @if (row.is_active) {
+          <button class="icon-btn danger" matTooltip="Desactivar" (click)="deactivate(row)">
+            <mat-icon>block</mat-icon>
+          </button>
+        }
+      </div>
+    </ng-template>
+
+  </app-data-table>
+
+</div>

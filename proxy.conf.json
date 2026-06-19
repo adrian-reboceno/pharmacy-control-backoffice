@@ -1,0 +1,8 @@
+{
+  "/api": {
+    "target": "http://pharma-nginx:80",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "debug"
+  }
+}

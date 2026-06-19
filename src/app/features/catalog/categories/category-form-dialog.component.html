@@ -1,0 +1,105 @@
+<div class="dialog-header">
+  <h2>{{ isEdit ? 'Editar categoría' : 'Nueva categoría' }}</h2>
+  <button mat-icon-button mat-dialog-close>
+    <mat-icon>close</mat-icon>
+  </button>
+</div>
+
+<form [formGroup]="form" (ngSubmit)="submit()">
+
+  <div mat-dialog-content class="dialog-content">
+
+    <div class="form-column">
+
+      <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
+        <mat-label>Nombre</mat-label>
+        <input matInput formControlName="name" (blur)="autoSlug()" maxlength="120" />
+        @if (form.get('name')?.hasError('required') && form.get('name')?.touched) {
+          <mat-error>El nombre es requerido</mat-error>
+        }
+        @if (form.get('name')?.hasError('serverError')) {
+          <mat-error>{{ form.get('name')?.getError('serverError') }}</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
+        <mat-label>Slug</mat-label>
+        <input matInput formControlName="slug" placeholder="se genera automáticamente" maxlength="120" />
+        <mat-hint>Solo minúsculas, números y guiones</mat-hint>
+        @if (form.get('slug')?.hasError('pattern')) {
+          <mat-error>Formato inválido (ej. analgesicos-orales)</mat-error>
+        }
+        @if (form.get('slug')?.hasError('serverError')) {
+          <mat-error>{{ form.get('slug')?.getError('serverError') }}</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
+        <mat-label>Categoría padre</mat-label>
+        <mat-select formControlName="parent_id">
+          <mat-option [value]="null">Sin categoría padre (raíz)</mat-option>
+          @for (cat of flatCategories(); track cat.id) {
+            <mat-option [value]="cat.id" [disabled]="isEdit && cat.id === data.category?.id">
+              {{ cat.indent }}{{ cat.name }}
+            </mat-option>
+          }
+        </mat-select>
+        @if (form.get('parent_id')?.hasError('serverError')) {
+          <mat-error>{{ form.get('parent_id')?.getError('serverError') }}</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
+        <mat-label>Descripción</mat-label>
+        <textarea matInput formControlName="description" rows="3" maxlength="500"></textarea>
+      </mat-form-field>
+
+    </div>
+
+    <!-- ── Vista previa ──────────────────────────────────── -->
+    <div class="preview-column">
+      <span class="preview-label">Vista previa</span>
+
+      <div class="preview-card">
+        <div class="preview-breadcrumb">
+          @if (parentName()) {
+            <span>{{ parentName() }}</span>
+            <mat-icon>chevron_right</mat-icon>
+          } @else {
+            <span class="preview-root-tag">Categoría raíz</span>
+          }
+        </div>
+
+        <div class="preview-node">
+          <mat-icon class="preview-icon">{{ form.get('parent_id')?.value ? 'label' : 'folder' }}</mat-icon>
+          <div>
+            <p class="preview-name">{{ form.get('name')?.value || 'Nombre de la categoría' }}</p>
+            <p class="preview-slug">{{ form.get('slug')?.value || 'slug-generado' }}</p>
+          </div>
+        </div>
+
+        @if (form.get('description')?.value) {
+          <p class="preview-description">{{ form.get('description')?.value }}</p>
+        }
+      </div>
+
+      <p class="preview-hint">
+        <mat-icon>info</mat-icon>
+        Así se verá en el árbol de categorías.
+      </p>
+    </div>
+
+  </div>
+
+  <div mat-dialog-actions align="end" class="dialog-actions">
+    <button type="button" mat-stroked-button mat-dialog-close>Cancelar</button>
+    <button type="submit" mat-flat-button color="primary" [disabled]="form.invalid || saving()">
+      @if (saving()) {
+        <mat-spinner diameter="18" strokeWidth="2" />
+      } @else {
+        {{ isEdit ? 'Guardar cambios' : 'Crear categoría' }}
+      }
+    </button>
+  </div>
+
+</form>

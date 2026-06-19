@@ -1,0 +1,53 @@
+<div class="dashboard">
+
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Dashboard</h1>
+      <nav class="breadcrumb">
+        <span>PharmaControl</span>
+        <mat-icon>chevron_right</mat-icon>
+        <span class="bc-active">Dashboard</span>
+      </nav>
+    </div>
+  </div>
+
+  <div class="stat-grid">
+    @for (card of stats; track card.label) {
+      <div class="stat-card" matRipple>
+        <div class="stat-left">
+          <p class="stat-label">{{ card.label }}</p>
+          <h2 class="stat-value">{{ card.value }}</h2>
+          <p class="stat-trend" [class.positive]="card.positive" [class.negative]="!card.positive">
+            <mat-icon>{{ card.positive ? 'trending_up' : 'trending_down' }}</mat-icon>
+            {{ card.trend }}
+          </p>
+        </div>
+        <div class="stat-icon-wrap" [style.background]="card.bg">
+          <mat-icon [style.color]="card.color">{{ card.icon }}</mat-icon>
+        </div>
+      </div>
+    }
+  </div>
+
+  <div class="section-header">
+    <h2 class="section-title">Módulos del sistema</h2>
+  </div>
+
+  <div class="module-grid">
+    @for (mod of modules; track mod.label) {
+      <div class="module-card" matRipple>
+        <div class="module-icon-wrap" [style.background]="mod.bg">
+          <mat-icon [style.color]="mod.color">{{ mod.icon }}</mat-icon>
+        </div>
+        <div class="module-info">
+          <h3>{{ mod.label }}</h3>
+          <p>{{ mod.desc }}</p>
+        </div>
+        <span class="module-badge" [class.ready]="mod.ready">
+          {{ mod.ready ? 'Activo' : 'En desarrollo' }}
+        </span>
+      </div>
+    }
+  </div>
+
+</div>

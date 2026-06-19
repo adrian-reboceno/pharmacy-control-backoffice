@@ -1,0 +1,90 @@
+<div class="login-page">
+
+  <div class="login-card-wrapper">
+
+    <!-- ── Panel izquierdo — branding ─────────────────────── -->
+    <div class="brand-panel">
+      <div class="brand-panel-overlay"></div>
+
+      <div class="brand-panel-content">
+        <div class="brand-logo-row">
+          <div class="brand-logo-icon">
+            <mat-icon>local_pharmacy</mat-icon>
+          </div>
+          <span class="brand-logo-text">PharmaControl</span>
+        </div>
+
+        <div class="brand-illustration">
+          <mat-icon class="floating-icon icon-1">medication</mat-icon>
+          <mat-icon class="floating-icon icon-2">inventory_2</mat-icon>
+          <mat-icon class="floating-icon icon-3">local_shipping</mat-icon>
+          <mat-icon class="floating-icon icon-4">category</mat-icon>
+        </div>
+
+        <div class="brand-quote">
+          <mat-icon class="quote-icon">format_quote</mat-icon>
+          <p>Gestión integral para farmacias, todo en un solo lugar.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Panel derecho — formulario ──────────────────────── -->
+    <div class="form-panel">
+      <div class="form-panel-content">
+
+        <h2 class="form-title">Bienvenido de nuevo</h2>
+        <p class="form-subtitle">Inicia sesión para continuar en PharmaControl</p>
+
+        <form [formGroup]="form" (ngSubmit)="submit()" class="login-form">
+
+          <div class="form-group">
+            <label for="email">Correo electrónico</label>
+            <div class="input-wrap">
+              <input id="email" formControlName="email"
+                     type="email" autocomplete="email"
+                     placeholder="usuario@farmacia.com" />
+              <mat-icon class="input-icon">mail_outline</mat-icon>
+            </div>
+            @if (form.get('email')?.hasError('required') && form.get('email')?.touched) {
+              <span class="field-error">El correo es requerido</span>
+            }
+            @if (form.get('email')?.hasError('email') && form.get('email')?.touched) {
+              <span class="field-error">Correo inválido</span>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="password">Contraseña</label>
+            <div class="input-wrap">
+              <input id="password" formControlName="password"
+                     [type]="showPassword() ? 'text' : 'password'"
+                     autocomplete="current-password" />
+              <button type="button" class="input-icon-btn"
+                      (click)="showPassword.set(!showPassword())">
+                <mat-icon>{{ showPassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+              </button>
+            </div>
+            @if (form.get('password')?.hasError('required') && form.get('password')?.touched) {
+              <span class="field-error">La contraseña es requerida</span>
+            }
+          </div>
+
+          <button type="submit" class="submit-btn"
+                  [disabled]="form.invalid || loading()">
+            @if (loading()) {
+              <mat-spinner diameter="20" strokeWidth="3" color="accent" />
+            } @else {
+              Iniciar sesión
+            }
+          </button>
+
+        </form>
+
+        <p class="login-footer">
+          PharmaControl &copy; {{ year }}
+        </p>
+      </div>
+    </div>
+
+  </div>
+</div>

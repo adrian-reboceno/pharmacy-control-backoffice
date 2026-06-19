@@ -1,0 +1,120 @@
+<div class="categories-page">
+
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Categorías</h1>
+      <nav class="breadcrumb">
+        <span>PharmaControl</span>
+        <mat-icon>chevron_right</mat-icon>
+        <span>Catálogo</span>
+        <mat-icon>chevron_right</mat-icon>
+        <span class="bc-active">Categorías</span>
+      </nav>
+    </div>
+
+    <div class="header-actions">
+      <button class="btn-secondary" (click)="loadTree()" [disabled]="loading()">
+        <mat-icon>refresh</mat-icon>
+        Actualizar
+      </button>
+      <button class="btn-primary" (click)="openCreateDialog(null)">
+        <mat-icon>add</mat-icon>
+        Nueva categoría
+      </button>
+    </div>
+  </div>
+
+  <div class="filter-bar">
+    <button class="filter-chip" [class.active]="filterActive() === undefined" (click)="setFilter(undefined)">
+      Todas
+    </button>
+    <button class="filter-chip" [class.active]="filterActive() === true" (click)="setFilter(true)">
+      Activas
+    </button>
+    <button class="filter-chip" [class.active]="filterActive() === false" (click)="setFilter(false)">
+      Inactivas
+    </button>
+  </div>
+
+  <div class="table-card">
+
+    @if (loading()) {
+      <div class="state-block">
+        <mat-spinner diameter="36" />
+        <p>Cargando categorías...</p>
+      </div>
+    } @else if (flatRows().length === 0) {
+      <div class="state-block">
+        <mat-icon class="state-icon">account_tree</mat-icon>
+        <p>No hay categorías registradas todavía.</p>
+        <button class="btn-primary" (click)="openCreateDialog(null)">
+          <mat-icon>add</mat-icon>
+          Crear la primera categoría
+        </button>
+      </div>
+    } @else {
+      <table class="categories-table">
+        <thead>
+          <tr>
+            <th class="col-name">Categoría</th>
+            <th class="col-slug">Slug</th>
+            <th class="col-status">Estado</th>
+            <th class="col-actions">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of flatRows(); track row.node.id) {
+            <tr class="table-row">
+
+              <td class="col-name">
+                <div class="name-cell" [style.padding-left.px]="row.depth * 24">
+
+                  <button class="expand-btn"
+                          [class.invisible]="row.node.children.length === 0"
+                          (click)="toggleExpand(row.node.id)">
+                    <mat-icon>{{ isExpanded(row.node.id) ? 'expand_more' : 'chevron_right' }}</mat-icon>
+                  </button>
+
+                  <mat-icon class="row-icon" [class.root-icon]="row.node.is_root">
+                    {{ row.node.children.length > 0 ? 'folder' : 'label' }}
+                  </mat-icon>
+
+                  <span class="row-name">{{ row.node.name }}</span>
+                </div>
+              </td>
+
+              <td class="col-slug">
+                <span class="slug-text">{{ row.node.slug }}</span>
+              </td>
+
+              <td class="col-status">
+                <span class="status-badge" [class.inactive]="!row.node.is_active">
+                  {{ row.node.is_active ? 'Activa' : 'Inactiva' }}
+                </span>
+              </td>
+
+              <td class="col-actions">
+                <div class="row-actions">
+                  <button class="icon-btn" matTooltip="Agregar subcategoría" (click)="openCreateDialog(row.node.id)">
+                    <mat-icon>add</mat-icon>
+                  </button>
+                  <button class="icon-btn" matTooltip="Editar" (click)="openEditDialog(row.node)">
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                  @if (row.node.is_active) {
+                    <button class="icon-btn danger" matTooltip="Desactivar" (click)="deactivate(row.node)">
+                      <mat-icon>block</mat-icon>
+                    </button>
+                  }
+                </div>
+              </td>
+
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+
+  </div>
+
+</div>

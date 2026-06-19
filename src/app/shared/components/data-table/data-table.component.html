@@ -1,0 +1,166 @@
+<div class="dt-wrapper">
+
+  <!-- ── Toolbar ─────────────────────────────────────────── -->
+  <div class="dt-toolbar">
+    <div class="dt-toolbar-left">
+      <div class="dt-show">
+        <span>Mostrar</span>
+        <select [value]="pageSize()" (change)="onPageSizeChange($event)">
+          <option value="10">10</option>
+          <option value="25">25</option>
+          <option value="50">50</option>
+          <option value="100">100</option>
+        </select>
+        <span>registros</span>
+      </div>
+    </div>
+    <div class="dt-toolbar-right">
+      @if (showSearch()) {
+      <div class="dt-search">
+        <mat-icon>search</mat-icon>
+        <input type="text" placeholder="Buscar..."
+               [value]="search()"
+               (input)="onSearchChange($event)" />
+        @if (search()) {
+          <button class="dt-search-clear" (click)="clearSearch()">
+            <mat-icon>close</mat-icon>
+          </button>
+        }
+    </div>
+      }
+    </div>
+  </div>
+
+  <!-- ── Table ───────────────────────────────────────────── -->
+  <div class="dt-table-wrap">
+    <table class="dt-table">
+      <thead>
+        <tr>
+          <!-- Checkbox select-all -->
+          <th class="col-check">
+            <input type="checkbox"
+                   [checked]="allSelected()"
+                   [indeterminate]="someSelected()"
+                   (change)="toggleSelectAll($event)" />
+          </th>
+
+          <!-- Columnas dinámicas -->
+          @for (col of columns(); track col.key) {
+            <th [class]="'col-' + col.key"
+                [class.sortable]="col.sortable !== false"
+                (click)="col.sortable !== false && onSort(col.key)">
+              {{ col.label }}
+              @if (col.sortable !== false) {
+                <span class="sort-icon">
+                  @if (sortKey() === col.key) {
+                    <mat-icon>{{ sortDir() === 'asc' ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>
+                  } @else {
+                    <mat-icon class="sort-inactive">unfold_more</mat-icon>
+                  }
+                </span>
+              }
+            </th>
+          }
+
+          <!-- Columna acciones -->
+          @if (hasActions()) {
+            <th class="col-actions">Acciones</th>
+          }
+        </tr>
+      </thead>
+
+      <tbody>
+        @if (loading()) {
+          <tr>
+            <td [attr.colspan]="columns().length + (hasActions() ? 2 : 1)" class="dt-state-cell">
+              <mat-spinner diameter="32" />
+              <span>Cargando...</span>
+            </td>
+          </tr>
+        } @else if (rows().length === 0) {
+          <tr>
+            <td [attr.colspan]="columns().length + (hasActions() ? 2 : 1)" class="dt-state-cell">
+              <mat-icon class="dt-empty-icon">inbox</mat-icon>
+              <span>No hay registros que mostrar.</span>
+            </td>
+          </tr>
+        } @else {
+          @for (row of rows(); track trackBy(row)) {
+            <tr class="dt-row" [class.selected]="isSelected(row)">
+
+              <td class="col-check">
+                <input type="checkbox"
+                       [checked]="isSelected(row)"
+                       (change)="toggleSelect(row, $event)" />
+              </td>
+
+              @for (col of columns(); track col.key) {
+                <td [class]="'col-' + col.key">
+                  <ng-container
+                    *ngTemplateOutlet="col.template || defaultCell;
+                                       context: { $implicit: row, value: getCellValue(row, col.key) }">
+                  </ng-container>
+                </td>
+              }
+
+              @if (hasActions()) {
+                <td class="col-actions">
+                  <ng-container
+                    *ngTemplateOutlet="actionsTemplate || null; context: { $implicit: row }">
+                  </ng-container>
+                </td>
+              }
+
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ── Footer / Paginación ─────────────────────────────── -->
+  <div class="dt-footer">
+    <div class="dt-info">
+      @if (total() > 0) {
+        Mostrando {{ from() }} a {{ to() }} de {{ total() }} registros
+        @if (selectedIds().size > 0) {
+          — <strong>{{ selectedIds().size }} seleccionado(s)</strong>
+        }
+      } @else {
+        Sin registros
+      }
+    </div>
+
+    <div class="dt-pagination">
+      <button class="dt-page-btn" [disabled]="page() <= 1" (click)="goToPage(1)">
+        <mat-icon>first_page</mat-icon>
+      </button>
+      <button class="dt-page-btn" [disabled]="page() <= 1" (click)="goToPage(page() - 1)">
+        <mat-icon>chevron_left</mat-icon>
+      </button>
+
+      @for (p of pageNumbers(); track p) {
+        <button class="dt-page-btn"
+                [class.active]="p === page()"
+                [class.ellipsis]="p === -1"
+                [disabled]="p === -1"
+                (click)="p !== -1 && goToPage(p)">
+          {{ p === -1 ? '…' : p }}
+        </button>
+      }
+
+      <button class="dt-page-btn" [disabled]="page() >= lastPage()" (click)="goToPage(page() + 1)">
+        <mat-icon>chevron_right</mat-icon>
+      </button>
+      <button class="dt-page-btn" [disabled]="page() >= lastPage()" (click)="goToPage(lastPage())">
+        <mat-icon>last_page</mat-icon>
+      </button>
+    </div>
+  </div>
+
+</div>
+
+<!-- Default cell template -->
+<ng-template #defaultCell let-value="value">
+  <span>{{ value }}</span>
+</ng-template>

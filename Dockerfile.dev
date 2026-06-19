@@ -1,0 +1,9 @@
+FROM node:22-alpine
+
+RUN npm install -g @angular/cli@22
+
+WORKDIR /app
+
+EXPOSE 4200
+
+CMD ["tail", "-f", "/dev/null"]
