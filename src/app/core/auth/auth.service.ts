@@ -1,8 +1,8 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Router } from '@angular/router';
-import { tap, map, switchMap } from 'rxjs/operators';
-import { environment } from '../../../environments/environment';
+import { HttpClient }                            from '@angular/common/http';
+import { Router }                                from '@angular/router';
+import { tap, map, switchMap }                   from 'rxjs/operators';
+import { environment }                           from '../../../environments/environment';
 
 export interface AuthUser {
   userId:      string;
@@ -14,11 +14,10 @@ export interface AuthUser {
   activeRole:  string | null;
 }
 
-interface TokenPair {
-  token_type:    string;
-  access_token:  string;
-  refresh_token: string;
-  expires_in:    number;
+interface LoginResponse {
+  expires_in:               number;
+  requires_role_selection:  boolean;
+  requires_password_change: boolean;
 }
 
 interface MeResponse {
@@ -38,25 +37,33 @@ export class AuthService {
   private http   = inject(HttpClient);
   private router = inject(Router);
 
-  private _user = signal<AuthUser | null>(this.loadFromSession());
+  private _user          = signal<AuthUser | null>(null);
+  private _sessionActive = signal<boolean>(false);
 
   readonly currentUser = this._user.asReadonly();
-  readonly isLoggedIn  = computed(() => this._user() !== null);
+  readonly isLoggedIn  = computed(() => this._sessionActive());
   readonly permissions = computed(() => this._user()?.permissions ?? []);
 
   login(email: string, password: string) {
     return this.http
-      .post<ApiResponse<TokenPair>>(`${environment.apiUrl}/auth/login`, { email, password })
+      .post<ApiResponse<LoginResponse>>(
+        `${environment.apiUrl}/auth/login`,
+        { email, password, client_type: 'WEB' },
+        { withCredentials: true }
+      )
       .pipe(
         map(r => r.data),
-        tap(tokens => this.saveTokens(tokens)),
+        tap(() => this._sessionActive.set(true)),
         switchMap(() => this.fetchMe())
       );
   }
 
   fetchMe() {
     return this.http
-      .get<ApiResponse<MeResponse>>(`${environment.apiUrl}/auth/me`)
+      .get<ApiResponse<MeResponse>>(
+        `${environment.apiUrl}/auth/me`,
+        { withCredentials: true }
+      )
       .pipe(
         map(r => r.data),
         tap(me => {
@@ -70,61 +77,75 @@ export class AuthService {
             activeRole:  me.active_role,
           };
           this._user.set(user);
+          this._sessionActive.set(true);
           sessionStorage.setItem('user', JSON.stringify(user));
         })
       );
   }
 
-  logout() {
-    this.http.post(`${environment.apiUrl}/auth/logout`, {}).subscribe();
-    this.clearSession();
+  logout(): void {
+    this.http
+      .post(`${environment.apiUrl}/auth/logout`, {}, { withCredentials: true })
+      .subscribe({ error: () => {} });
+    this.clearState();
     this.router.navigate(['/login']);
   }
 
   refreshToken() {
-    const refresh = sessionStorage.getItem('refresh_token');
     return this.http
-      .post<ApiResponse<TokenPair>>(`${environment.apiUrl}/auth/refresh`, { refresh_token: refresh })
-      .pipe(
-        map(r => r.data),
-        tap(tokens => this.saveTokens(tokens))
-      );
+      .post<ApiResponse<{ expires_in: number }>>(
+        `${environment.apiUrl}/auth/refresh`,
+        {},
+        { withCredentials: true }
+      )
+      .pipe(map(r => r.data));
   }
 
   hasPermission(permission: string): boolean {
     return this.permissions().includes(permission);
   }
 
-  getAccessToken(): string | null {
-    return sessionStorage.getItem('access_token');
+  tryRestoreSession() {
+    return this.http
+      .get<ApiResponse<MeResponse>>(
+        `${environment.apiUrl}/auth/me`,
+        { withCredentials: true }
+      )
+      .pipe(
+        map(r => r.data),
+        tap(me => {
+          const user: AuthUser = {
+            userId:      me.user_id,
+            email:       me.email,
+            firstName:   me.first_name,
+            lastName:    me.last_name,
+            name:        `${me.first_name} ${me.last_name}`.trim(),
+            permissions: me.permissions,
+            activeRole:  me.active_role,
+          };
+          this._user.set(user);
+          this._sessionActive.set(true);
+          sessionStorage.setItem('user', JSON.stringify(user));
+        })
+      );
   }
 
-  private saveTokens(tokens: TokenPair): void {
-    sessionStorage.setItem('access_token',  tokens.access_token);
-    sessionStorage.setItem('refresh_token', tokens.refresh_token);
-  }
-
-  private clearSession(): void {
-    sessionStorage.clear();
-    this._user.set(null);
-  }
-
-  private loadFromSession(): AuthUser | null {
-    const token = sessionStorage.getItem('access_token');
-    const user  = sessionStorage.getItem('user');
-    if (!token) return null;
-    try {
-      const payload = this.decodePayload(token);
-      if (payload.exp * 1000 < Date.now()) {
-        sessionStorage.clear();
-        return null;
+  loadCachedUser(): void {
+    const cached = sessionStorage.getItem('user');
+    if (cached) {
+      try {
+        const user = JSON.parse(cached) as AuthUser;
+        this._user.set(user);
+        this._sessionActive.set(true);
+      } catch {
+        sessionStorage.removeItem('user');
       }
-      if (user) return JSON.parse(user);
-      return null;
-    } catch { return null; }
+    }
   }
 
-  private decodePayload(token: string): any {
-    return JSON.parse(atob(token.split('.')[1]));
+  private clearState(): void {
+    sessionStorage.removeItem('user');
+    this._user.set(null);
+    this._sessionActive.set(false);
   }
 }
