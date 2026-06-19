@@ -42,6 +42,12 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/catalog/presentations/presentations-list.component').then(m => m.PresentationsListComponent),
       },
+      {
+        path: 'catalog/routes-of-administration',
+        canActivate: [permissionGuard('catalog.routes-of-administration.manage')],
+        loadComponent: () =>
+          import('./features/catalog/routes-of-administration/routes-list.component').then(m => m.RoutesListComponent),
+      },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
     ],
   },
