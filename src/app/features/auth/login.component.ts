@@ -1,10 +1,11 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AuthService } from '../../core/auth/auth.service';
 import { AlertService } from '../../shared/services/alert.service';
+import { InactivityService } from '../../core/auth/inactivity.service';
 
 @Component({
   selector: 'app-login',
@@ -13,11 +14,13 @@ import { AlertService } from '../../shared/services/alert.service';
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss',
 })
-export class LoginComponent {
-  private fb     = inject(FormBuilder);
-  private auth   = inject(AuthService);
-  private router = inject(Router);
-  private alert  = inject(AlertService);
+export class LoginComponent implements OnInit {
+  private fb         = inject(FormBuilder);
+  private auth       = inject(AuthService);
+  private router     = inject(Router);
+  private route      = inject(ActivatedRoute);
+  private alert      = inject(AlertService);
+  private inactivity = inject(InactivityService);
 
   loading      = signal(false);
   showPassword = signal(false);
@@ -30,29 +33,40 @@ export class LoginComponent {
                 validators: Validators.required }),
   });
 
+  ngOnInit() {
+    const reason = this.route.snapshot.queryParamMap.get('reason');
+    if (reason === 'inactivity') {
+      this.alert.warning(
+        'Tu sesión se cerró por inactividad. Por favor inicia sesión nuevamente.'
+      );
+    }
+  }
+
   submit() {
     if (this.form.invalid) return;
     this.loading.set(true);
-
     const { email, password } = this.form.getRawValue();
 
     this.auth.login(email, password).subscribe({
       next: () => {
         this.loading.set(false);
-        const name = this.auth.currentUser()?.name ?? 'de nuevo';
-        this.router.navigate(['/dashboard']).then(() => {
-          this.alert.toast(`¡Bienvenido, ${name}!`, 'success');
-        });
+        this.inactivity.start();
+        this.router.navigate(['/dashboard']);
       },
       error: (err) => {
         this.loading.set(false);
-        this.alert.error(
-          err.status === 401
-            ? 'Las credenciales ingresadas son incorrectas. Verifica tu correo y contraseña.'
-            : 'No se pudo conectar con el servidor. Intenta de nuevo.',
-          err.status === 401 ? 'Credenciales incorrectas' : 'Error de conexión'
-        );
+        if (err.status === 423) {
+          this.alert.error('Tu cuenta está bloqueada. Contacta al administrador.');
+          return;
+        }
+        if (err.status === 401) {
+          this.alert.error('Credenciales incorrectas. Verifica tu correo y contraseña.');
+          return;
+        }
+        this.alert.error('Error al iniciar sesión. Intenta nuevamente.');
       }
     });
   }
+
+  togglePassword() { this.showPassword.update(v => !v); }
 }

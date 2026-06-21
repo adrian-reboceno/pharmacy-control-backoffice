@@ -48,6 +48,12 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/catalog/routes-of-administration/routes-list.component').then(m => m.RoutesListComponent),
       },
+      {
+        path: 'catalog/status',
+        canActivate: [permissionGuard('catalog.statuses.manage')],
+        loadComponent: () =>
+          import('./features/catalog/statuses/statuses-list.component').then(m => m.StatusesListComponent),
+      },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
     ],
   },
