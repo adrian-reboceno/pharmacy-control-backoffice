@@ -60,6 +60,12 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/catalog/laboratories/laboratories-list.component').then(m => m.LaboratoriesListComponent),
       },
+      {
+        path: 'catalog/active-ingredients',
+        canActivate: [permissionGuard('catalog.active-ingredients.manage')],
+        loadComponent: () =>
+          import('./features/catalog/active-ingredients/active-ingredients-list.component').then(m => m.ActiveIngredientsListComponent),
+      },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
     ],
   },
