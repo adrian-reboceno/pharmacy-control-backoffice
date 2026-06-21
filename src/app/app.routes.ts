@@ -54,6 +54,12 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/catalog/statuses/statuses-list.component').then(m => m.StatusesListComponent),
       },
+      {
+        path: 'catalog/laboratories',
+        canActivate: [permissionGuard('catalog.laboratories.manage')],
+        loadComponent: () =>
+          import('./features/catalog/laboratories/laboratories-list.component').then(m => m.LaboratoriesListComponent),
+      },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
     ],
   },

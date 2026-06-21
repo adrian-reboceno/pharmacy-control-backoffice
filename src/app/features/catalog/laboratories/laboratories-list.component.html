@@ -1,0 +1,92 @@
+<div class="laboratories-page">
+
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Laboratorios</h1>
+      <nav class="breadcrumb">
+        <span>PharmaControl</span>
+        <mat-icon>chevron_right</mat-icon>
+        <span>Catálogo</span>
+        <mat-icon>chevron_right</mat-icon>
+        <span class="bc-active">Laboratorios</span>
+      </nav>
+    </div>
+    <button class="btn-primary" (click)="openCreate()">
+      <mat-icon>add</mat-icon>
+      Nuevo laboratorio
+    </button>
+  </div>
+
+  <div class="filter-bar">
+    <div class="filter-country">
+      <mat-icon>flag</mat-icon>
+      <input type="text" placeholder="Filtrar por país (ej. MX)"
+             maxlength="2"
+             [value]="filterCountry()"
+             (input)="onCountryInput($event)" />
+      @if (filterCountry()) {
+        <button class="clear-btn" (click)="clearCountry()">
+          <mat-icon>close</mat-icon>
+        </button>
+      }
+    </div>
+    <div class="filter-separator"></div>
+    <button class="filter-chip" [class.active]="filterActive() === undefined" (click)="setActive(undefined)">
+      Todos
+    </button>
+    <button class="filter-chip" [class.active]="filterActive() === true" (click)="setActive(true)">
+      Activos
+    </button>
+    <button class="filter-chip" [class.active]="filterActive() === false" (click)="setActive(false)">
+      Inactivos
+    </button>
+  </div>
+
+  <app-data-table
+    [columns]="columns"
+    [rows]="items()"
+    [total]="total()"
+    [loading]="loading()"
+    (pageChange)="onPageChange($event)">
+
+    <!-- Columna: País -->
+    <ng-template #countryTpl let-row>
+      <span class="country-badge">{{ row.country_code }}</span>
+    </ng-template>
+
+    <!-- Columna: Website -->
+    <ng-template #websiteTpl let-row>
+      @if (row.website) {
+        <a class="website-link" [href]="row.website" target="_blank" rel="noopener noreferrer">
+          <mat-icon>open_in_new</mat-icon>
+          {{ row.website | slice:0:40 }}{{ row.website.length > 40 ? '…' : '' }}
+        </a>
+      } @else {
+        <span class="text-muted">—</span>
+      }
+    </ng-template>
+
+    <!-- Columna: Estado -->
+    <ng-template #statusTpl let-row>
+      <span class="status-badge" [class.inactive]="!row.is_active">
+        {{ row.is_active ? 'Activo' : 'Inactivo' }}
+      </span>
+    </ng-template>
+
+    <!-- Acciones -->
+    <ng-template #actionsTemplate let-row>
+      <div class="row-actions">
+        <button class="icon-btn" matTooltip="Editar" (click)="openEdit(row)">
+          <mat-icon>edit</mat-icon>
+        </button>
+        @if (row.is_active) {
+          <button class="icon-btn danger" matTooltip="Desactivar" (click)="deactivate(row)">
+            <mat-icon>block</mat-icon>
+          </button>
+        }
+      </div>
+    </ng-template>
+
+  </app-data-table>
+
+</div>
