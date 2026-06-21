@@ -91,6 +91,14 @@ export class AuthService {
     this.router.navigate(['/login']);
   }
 
+  logoutByInactivity(): void {
+    this.http
+      .post(`${environment.apiUrl}/auth/logout`, {}, { withCredentials: true })
+      .subscribe({ error: () => {} });
+    this.clearState();
+    this.router.navigate(['/login'], { queryParams: { reason: 'inactivity' } });
+  }
+
   refreshToken() {
     return this.http
       .post<ApiResponse<{ expires_in: number }>>(

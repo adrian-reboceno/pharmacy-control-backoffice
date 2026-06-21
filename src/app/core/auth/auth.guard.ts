@@ -1,15 +1,18 @@
 import { inject }                         from '@angular/core';
 import { CanActivateFn, Router }          from '@angular/router';
 import { AuthService }                    from './auth.service';
-import { catchError, map, of }            from 'rxjs';
+import { InactivityService }              from './inactivity.service';
+import { catchError, map, of, tap }       from 'rxjs';
 
 export const authGuard: CanActivateFn = () => {
-  const auth   = inject(AuthService);
-  const router = inject(Router);
+  const auth       = inject(AuthService);
+  const router     = inject(Router);
+  const inactivity = inject(InactivityService);
 
   if (auth.isLoggedIn()) return true;
 
   return auth.tryRestoreSession().pipe(
+    tap(() => inactivity.start()),
     map(() => true),
     catchError(() => of(router.createUrlTree(['/login'])))
   );
@@ -17,8 +20,9 @@ export const authGuard: CanActivateFn = () => {
 
 export const permissionGuard = (permission: string): CanActivateFn =>
   () => {
-    const auth   = inject(AuthService);
-    const router = inject(Router);
+    const auth       = inject(AuthService);
+    const router     = inject(Router);
+    const inactivity = inject(InactivityService);
 
     if (auth.isLoggedIn()) {
       return auth.hasPermission(permission)
@@ -27,6 +31,7 @@ export const permissionGuard = (permission: string): CanActivateFn =>
     }
 
     return auth.tryRestoreSession().pipe(
+      tap(() => inactivity.start()),
       map(() => {
         if (!auth.hasPermission(permission)) {
           return router.createUrlTree(['/forbidden']);

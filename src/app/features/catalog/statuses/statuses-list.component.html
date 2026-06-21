@@ -1,0 +1,83 @@
+<div class="statuses-page">
+
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Estados de producto</h1>
+      <nav class="breadcrumb">
+        <span>PharmaControl</span>
+        <mat-icon>chevron_right</mat-icon>
+        <span>Catálogo</span>
+        <mat-icon>chevron_right</mat-icon>
+        <span class="bc-active">Estados</span>
+      </nav>
+    </div>
+    <button class="btn-primary" (click)="openCreate()">
+      <mat-icon>add</mat-icon>
+      Nuevo estado
+    </button>
+  </div>
+
+  <div class="info-banner">
+    <mat-icon>info</mat-icon>
+    <span>Los estados <strong>ACTIVO</strong>, <strong>DESCONTINUADO</strong> y <strong>ELIMINADO</strong> están precargados por el sistema. Puedes agregar estados personalizados adicionales.</span>
+  </div>
+
+  <div class="filter-bar">
+    <button class="filter-chip" [class.active]="filterActive() === undefined" (click)="setActive(undefined)">
+      Todos
+    </button>
+    <button class="filter-chip" [class.active]="filterActive() === true" (click)="setActive(true)">
+      Activos
+    </button>
+    <button class="filter-chip" [class.active]="filterActive() === false" (click)="setActive(false)">
+      Inactivos
+    </button>
+  </div>
+
+  <app-data-table
+    [columns]="columns"
+    [rows]="items()"
+    [total]="total()"
+    [loading]="loading()"
+    (pageChange)="onPageChange($event)">
+
+    <!-- Columna: Código -->
+    <ng-template #codeTpl let-row>
+      <span class="code-badge">{{ row.code }}</span>
+    </ng-template>
+
+    <!-- Columna: Descripción -->
+    <ng-template #descTpl let-row>
+      @if (row.description) {
+        <span class="desc-text" [title]="row.description">
+          {{ row.description | slice:0:60 }}{{ row.description.length > 60 ? '…' : '' }}
+        </span>
+      } @else {
+        <span class="text-muted">—</span>
+      }
+    </ng-template>
+
+    <!-- Columna: Estado -->
+    <ng-template #statusTpl let-row>
+      <span class="status-badge" [class.inactive]="!row.is_active">
+        {{ row.is_active ? 'Activo' : 'Inactivo' }}
+      </span>
+    </ng-template>
+
+    <!-- Acciones -->
+    <ng-template #actionsTemplate let-row>
+      <div class="row-actions">
+        <button class="icon-btn" matTooltip="Editar" (click)="openEdit(row)">
+          <mat-icon>edit</mat-icon>
+        </button>
+        @if (row.is_active) {
+          <button class="icon-btn danger" matTooltip="Desactivar" (click)="deactivate(row)">
+            <mat-icon>block</mat-icon>
+          </button>
+        }
+      </div>
+    </ng-template>
+
+  </app-data-table>
+
+</div>
