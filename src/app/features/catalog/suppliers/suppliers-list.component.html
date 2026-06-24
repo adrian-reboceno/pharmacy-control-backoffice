@@ -1,0 +1,97 @@
+<div class="suppliers-page">
+
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Proveedores</h1>
+      <nav class="breadcrumb">
+        <span>PharmaControl</span>
+        <mat-icon>chevron_right</mat-icon>
+        <span>Catálogo</span>
+        <mat-icon>chevron_right</mat-icon>
+        <span class="bc-active">Proveedores</span>
+      </nav>
+    </div>
+    <button class="btn-primary" (click)="openCreate()">
+      <mat-icon>add</mat-icon>
+      Nuevo proveedor
+    </button>
+  </div>
+
+  <div class="filter-bar">
+    <button class="filter-chip" [class.active]="filterType() === undefined" (click)="setType(undefined)">
+      Todos los tipos
+    </button>
+    <button class="filter-chip" [class.active]="filterType() === 'MORAL'" (click)="setType('MORAL')">
+      Persona Moral
+    </button>
+    <button class="filter-chip" [class.active]="filterType() === 'FISICA'" (click)="setType('FISICA')">
+      Persona Física
+    </button>
+    <div class="filter-separator"></div>
+    <button class="filter-chip" [class.active]="filterActive() === undefined" (click)="setActive(undefined)">
+      Todos
+    </button>
+    <button class="filter-chip" [class.active]="filterActive() === true" (click)="setActive(true)">
+      Activos
+    </button>
+    <button class="filter-chip" [class.active]="filterActive() === false" (click)="setActive(false)">
+      Inactivos
+    </button>
+  </div>
+
+  <app-data-table
+    [columns]="columns"
+    [rows]="items()"
+    [total]="total()"
+    [loading]="loading()"
+    (pageChange)="onPageChange($event)">
+
+    <!-- Columna: Nombre comercial -->
+    <ng-template #tradeNameTpl let-row>
+      @if (row.trade_name) {
+        <span>{{ row.trade_name }}</span>
+      } @else {
+        <span class="text-muted">—</span>
+      }
+    </ng-template>
+
+    <!-- Columna: RFC -->
+    <ng-template #rfcTpl let-row>
+      @if (row.rfc) {
+        <span class="rfc-badge">{{ row.rfc }}</span>
+      } @else {
+        <span class="text-muted">—</span>
+      }
+    </ng-template>
+
+    <!-- Columna: Tipo -->
+    <ng-template #typeTpl let-row>
+      <span class="type-badge type-{{ row.type | lowercase }}">
+        {{ row.type_label }}
+      </span>
+    </ng-template>
+
+    <!-- Columna: Estado -->
+    <ng-template #statusTpl let-row>
+      <span class="status-badge" [class.inactive]="!row.is_active">
+        {{ row.is_active ? 'Activo' : 'Inactivo' }}
+      </span>
+    </ng-template>
+
+    <!-- Acciones -->
+    <ng-template #actionsTemplate let-row>
+      <div class="row-actions">
+        <button class="icon-btn" matTooltip="Editar" (click)="openEdit(row)">
+          <mat-icon>edit</mat-icon>
+        </button>
+        @if (row.is_active) {
+          <button class="icon-btn danger" matTooltip="Desactivar" (click)="deactivate(row)">
+            <mat-icon>block</mat-icon>
+          </button>
+        }
+      </div>
+    </ng-template>
+
+  </app-data-table>
+
+</div>

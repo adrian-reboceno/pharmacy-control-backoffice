@@ -66,6 +66,12 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/catalog/active-ingredients/active-ingredients-list.component').then(m => m.ActiveIngredientsListComponent),
       },
+      {
+        path: 'catalog/suppliers',
+        canActivate: [permissionGuard('catalog.suppliers.manage')],
+        loadComponent: () =>
+          import('./features/catalog/suppliers/suppliers-list.component').then(m => m.SuppliersListComponent),
+      },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
     ],
   },
