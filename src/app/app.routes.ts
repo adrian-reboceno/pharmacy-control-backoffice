@@ -72,6 +72,12 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/catalog/suppliers/suppliers-list.component').then(m => m.SuppliersListComponent),
       },
+      {
+        path: 'catalog/locations',
+        canActivate: [permissionGuard('catalog.locations.manage')],
+        loadComponent: () =>
+          import('./features/catalog/locations/locations-list.component').then(m => m.LocationsListComponent),
+      },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
     ],
   },

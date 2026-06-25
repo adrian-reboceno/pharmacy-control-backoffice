@@ -45,6 +45,7 @@ const NAV_ITEMS: NavItem[] = [
       { label: 'Ingredientes activos',icon: 'biotech',       route: '/catalog/active-ingredients',       permission: 'catalog.active-ingredients.manage' },
       { label: 'Productos',           icon: 'medication_liquid', route: '/catalog/products',             permission: 'catalog.products.view' },
       { label: 'Proveedores',         icon: 'local_shipping',route: '/catalog/suppliers',                permission: 'catalog.suppliers.manage' },
+      { label: 'Ubicaciones',          icon: 'store',         route: '/catalog/locations',                permission: 'catalog.locations.manage' },
     ],
   },
 
