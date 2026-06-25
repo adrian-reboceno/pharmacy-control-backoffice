@@ -1,0 +1,125 @@
+<div class="locations-page">
+
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Ubicaciones</h1>
+      <nav class="breadcrumb">
+        <span>PharmaControl</span>
+        <mat-icon>chevron_right</mat-icon>
+        <span>Catálogo</span>
+        <mat-icon>chevron_right</mat-icon>
+        <span class="bc-active">Ubicaciones</span>
+      </nav>
+    </div>
+    <div class="header-actions">
+      <button class="btn-secondary" (click)="loadTree()" [disabled]="loading()">
+        <mat-icon>refresh</mat-icon>
+        Actualizar
+      </button>
+      <button class="btn-primary" (click)="openCreate(null, null)">
+        <mat-icon>add</mat-icon>
+        Nueva zona
+      </button>
+    </div>
+  </div>
+
+  <div class="info-banner">
+    <mat-icon>info</mat-icon>
+    <span>Jerarquía fija de 4 niveles: <strong>Zona → Pasillo → Estante → Posición</strong>. Solo las <strong>Posiciones</strong> pueden asignarse a productos.</span>
+  </div>
+
+  <div class="filter-bar">
+    <button class="filter-chip" [class.active]="filterActive() === undefined" (click)="setActive(undefined)">
+      Todos
+    </button>
+    <button class="filter-chip" [class.active]="filterActive() === true" (click)="setActive(true)">
+      Activos
+    </button>
+    <button class="filter-chip" [class.active]="filterActive() === false" (click)="setActive(false)">
+      Inactivos
+    </button>
+  </div>
+
+  <div class="table-card">
+    @if (loading()) {
+      <div class="state-block">
+        <mat-spinner diameter="36" />
+        <p>Cargando ubicaciones...</p>
+      </div>
+    } @else if (flatRows().length === 0) {
+      <div class="state-block">
+        <mat-icon class="state-icon">store</mat-icon>
+        <p>No hay ubicaciones registradas.</p>
+        <button class="btn-primary" (click)="openCreate(null, null)">
+          <mat-icon>add</mat-icon>
+          Crear primera zona
+        </button>
+      </div>
+    } @else {
+      <table class="locations-table">
+        <thead>
+          <tr>
+            <th class="col-name">Nombre</th>
+            <th class="col-level">Nivel</th>
+            <th class="col-path">Ruta completa</th>
+            <th class="col-status">Estado</th>
+            <th class="col-actions">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of flatRows(); track row.node.id) {
+            <tr class="table-row">
+              <td class="col-name">
+                <div class="name-cell" [style.padding-left.px]="(row.node.level - 1) * 24">
+                  <button class="expand-btn"
+                          [class.invisible]="!hasChildren(row.node)"
+                          (click)="toggleExpand(row.node.id)">
+                    <mat-icon>{{ isExpanded(row.node.id) ? 'expand_more' : 'chevron_right' }}</mat-icon>
+                  </button>
+                  <mat-icon class="level-icon level-{{ row.node.level }}">
+                    {{ levelIcon(row.node.level) }}
+                  </mat-icon>
+                  <span class="row-name">{{ row.node.name }}</span>
+                </div>
+              </td>
+              <td class="col-level">
+                <span class="level-badge level-{{ row.node.level }}">
+                  {{ row.node.level_label }}
+                </span>
+              </td>
+              <td class="col-path">
+                <span class="path-text" [title]="row.node.full_path">
+                  {{ row.node.full_path | slice:0:50 }}{{ row.node.full_path.length > 50 ? '…' : '' }}
+                </span>
+              </td>
+              <td class="col-status">
+                <span class="status-badge" [class.inactive]="!row.node.is_active">
+                  {{ row.node.is_active ? 'Activo' : 'Inactivo' }}
+                </span>
+              </td>
+              <td class="col-actions">
+                <div class="row-actions">
+                  @if (row.node.level < 4) {
+                    <button class="icon-btn" [matTooltip]="'Agregar ' + childLabel(row.node.level)"
+                            (click)="openCreate(row.node.id, row.node.level)">
+                      <mat-icon>add</mat-icon>
+                    </button>
+                  }
+                  <button class="icon-btn" matTooltip="Editar" (click)="openEdit(row.node)">
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                  @if (row.node.is_active) {
+                    <button class="icon-btn danger" matTooltip="Desactivar" (click)="deactivate(row.node)">
+                      <mat-icon>block</mat-icon>
+                    </button>
+                  }
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  </div>
+
+</div>

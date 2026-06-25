@@ -1,0 +1,116 @@
+.locations-page { width: 100%; }
+
+.page-header {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  margin-bottom: 16px; flex-wrap: wrap; gap: 12px;
+}
+.page-title { font-size: 1.4rem; font-weight: 700; color: #212529; margin: 0 0 6px; }
+.breadcrumb {
+  display: flex; align-items: center; gap: 4px;
+  font-size: 0.82rem; color: #6c757d;
+  mat-icon { font-size: 14px; width: 14px; height: 14px; }
+  .bc-active { color: #405189; font-weight: 500; }
+}
+.header-actions { display: flex; gap: 10px; }
+
+.btn-primary, .btn-secondary {
+  display: flex; align-items: center; gap: 6px;
+  padding: 9px 16px; border-radius: 8px;
+  font-size: 0.85rem; font-weight: 600;
+  cursor: pointer; border: none; transition: all 0.15s;
+  mat-icon { font-size: 18px; width: 18px; height: 18px; }
+}
+.btn-primary { background: #405189; color: white; }
+.btn-primary:hover { background: #344167; }
+.btn-secondary { background: white; color: #495057; border: 1px solid #e9ebec; }
+.btn-secondary:hover { background: #f3f6f9; }
+.btn-secondary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.info-banner {
+  display: flex; align-items: center; gap: 10px;
+  background: #eef0fa; border: 1px solid #c5cbec;
+  border-radius: 10px; padding: 12px 16px; margin-bottom: 16px;
+  font-size: 0.83rem; color: #405189;
+  mat-icon { font-size: 18px; width: 18px; height: 18px; flex-shrink: 0; }
+  strong { font-weight: 700; }
+}
+
+.filter-bar { display: flex; gap: 8px; margin-bottom: 16px; }
+.filter-chip {
+  padding: 6px 14px; border-radius: 20px;
+  border: 1px solid #e9ebec; background: white;
+  color: #6c757d; font-size: 0.82rem; font-weight: 500;
+  cursor: pointer; transition: all 0.15s;
+}
+.filter-chip:hover { background: #f3f6f9; }
+.filter-chip.active { background: #405189; color: white; border-color: #405189; }
+
+.table-card {
+  background: white; border-radius: 14px;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+  overflow: hidden; min-height: 200px;
+}
+
+.state-block {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 12px; padding: 56px 24px; color: #6c757d; font-size: 0.88rem;
+  .state-icon { font-size: 48px; width: 48px; height: 48px; color: #ced4da; }
+}
+
+.locations-table { width: 100%; border-collapse: collapse; }
+.locations-table thead tr { border-bottom: 1px solid #e9ebec; }
+.locations-table th {
+  text-align: left; padding: 12px 16px;
+  font-size: 0.74rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .04em; color: #6c757d;
+}
+.col-level   { width: 120px; }
+.col-status  { width: 100px; }
+.col-actions { width: 130px; text-align: right !important; }
+.col-path    { max-width: 280px; }
+
+.table-row { border-bottom: 1px solid #f3f6f9; transition: background 0.12s; }
+.table-row:last-child { border-bottom: none; }
+.table-row:hover { background: #f7f8fa; }
+.locations-table td { padding: 10px 16px; vertical-align: middle; }
+
+.name-cell { display: flex; align-items: center; gap: 6px; }
+
+.expand-btn {
+  width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;
+  border: none; background: none; cursor: pointer; border-radius: 6px; color: #6c757d;
+  flex-shrink: 0;
+  mat-icon { font-size: 19px; width: 19px; height: 19px; }
+}
+.expand-btn:hover { background: #e9ebec; }
+.expand-btn.invisible { visibility: hidden; cursor: default; }
+
+.level-icon {
+  font-size: 18px; width: 18px; height: 18px; flex-shrink: 0;
+}
+.level-icon.level-1 { color: #405189; }
+.level-icon.level-2 { color: #f7b731; }
+.level-icon.level-3 { color: #0ab39c; }
+.level-icon.level-4 { color: #534ab7; }
+
+.row-name { font-size: 0.88rem; font-weight: 600; color: #212529; }
+
+.level-badge {
+  display: inline-block; padding: 3px 10px; border-radius: 14px;
+  font-size: 0.74rem; font-weight: 600;
+}
+.level-badge.level-1 { background: #eef0fa; color: #405189; }
+.level-badge.level-2 { background: #fef9e7; color: #d4ac0d; }
+.level-badge.level-3 { background: #d1f2eb; color: #0ab39c; }
+.level-badge.level-4 { background: #eeedfe; color: #534ab7; }
+
+.path-text { font-size: 0.78rem; color: #6c757d; }
+
+.row-actions { display: flex; gap: 2px; justify-content: flex-end; }
+.icon-btn {
+  width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;
+  border: none; background: none; cursor: pointer; border-radius: 6px; color: #6c757d;
+  mat-icon { font-size: 16px; width: 16px; height: 16px; }
+}
+.icon-btn:hover { background: #e9ebec; color: #405189; }
+.icon-btn.danger:hover { background: #fde8e4; color: #f06548; }
