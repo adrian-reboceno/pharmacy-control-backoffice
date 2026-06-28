@@ -1,0 +1,105 @@
+<div class="products-page">
+
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Productos</h1>
+      <nav class="breadcrumb">
+        <span>PharmaControl</span>
+        <mat-icon>chevron_right</mat-icon>
+        <span>Catálogo</span>
+        <mat-icon>chevron_right</mat-icon>
+        <span class="bc-active">Productos</span>
+      </nav>
+    </div>
+    @if (canCreate()) {
+      <button class="btn-primary" (click)="openCreate()">
+        <mat-icon>add</mat-icon>
+        Nuevo producto
+      </button>
+    }
+  </div>
+
+  <div class="filter-bar">
+    <button class="filter-chip" [class.active]="filterType() === undefined" (click)="setType(undefined)">Todos los tipos</button>
+    <button class="filter-chip" [class.active]="filterType() === 'GENERIC'" (click)="setType('GENERIC')">Genérico</button>
+    <button class="filter-chip" [class.active]="filterType() === 'BRANDED'" (click)="setType('BRANDED')">Marca</button>
+    <div class="filter-separator"></div>
+    <button class="filter-chip" [class.active]="filterSale() === undefined" (click)="setSale(undefined)">Todas las condiciones</button>
+    <button class="filter-chip" [class.active]="filterSale() === 'SIN_RECETA'" (click)="setSale('SIN_RECETA')">Sin receta</button>
+    <button class="filter-chip" [class.active]="filterSale() === 'CON_RECETA'" (click)="setSale('CON_RECETA')">Con receta</button>
+    <button class="filter-chip" [class.active]="filterSale() === 'CON_RECETA_RETENIDA'" (click)="setSale('CON_RECETA_RETENIDA')">Receta retenida</button>
+    <div class="filter-separator"></div>
+    <button class="filter-chip" [class.active]="filterActive() === undefined" (click)="setActive(undefined)">Todos</button>
+    <button class="filter-chip" [class.active]="filterActive() === true" (click)="setActive(true)">Activos</button>
+    <button class="filter-chip" [class.active]="filterActive() === false" (click)="setActive(false)">Inactivos</button>
+  </div>
+
+  <app-data-table
+    [columns]="columns()"
+    [rows]="items()"
+    [total]="total()"
+    [loading]="loading()"
+    (pageChange)="onPageChange($event)">
+
+    <!-- Columna: Tipo -->
+    <ng-template #typeTpl let-row>
+      <span class="type-badge type-{{ row.type | lowercase }}">{{ row.type_label }}</span>
+    </ng-template>
+
+    <!-- Columna: Condición de venta -->
+    <ng-template #saleTpl let-row>
+      <span class="sale-badge sale-{{ row.sale_condition | lowercase }}">{{ row.sale_condition_label }}</span>
+    </ng-template>
+
+    <!-- Columna: Estado -->
+    <ng-template #statusTpl let-row>
+      <span class="status-badge" [class.inactive]="!row.is_active">
+        {{ row.is_active ? 'Activo' : 'Inactivo' }}
+      </span>
+    </ng-template>
+
+    <!-- Columna: Acciones -->
+    <ng-template #actionsTemplate let-row>
+      <div class="row-actions">
+        <button class="icon-btn" matTooltip="Ver detalle" (click)="openView(row)">
+          <mat-icon>visibility</mat-icon>
+        </button>
+        @if (canDeactivate() && row.is_active) {
+          <button class="icon-btn danger" matTooltip="Desactivar" (click)="deactivate(row)">
+            <mat-icon>block</mat-icon>
+          </button>
+        }
+        @if (canEdit()) {
+          <button class="icon-btn"
+                  [matMenuTriggerFor]="productMenu"
+                  [matMenuTriggerData]="{ row: row }"
+                  matTooltip="Más acciones">
+            <mat-icon>more_vert</mat-icon>
+          </button>
+        }
+      </div>
+    </ng-template>
+
+  </app-data-table>
+
+  <!-- Menú contextual — FUERA de app-data-table -->
+  <mat-menu #productMenu="matMenu">
+    <ng-template matMenuContent let-row="row">
+      @if (canEdit()) {
+        <button mat-menu-item (click)="openEdit(row)">
+          <mat-icon>edit</mat-icon>
+          Editar
+        </button>
+        <button mat-menu-item (click)="openImages(row)">
+          <mat-icon>photo_library</mat-icon>
+          Imágenes
+        </button>
+      }
+      <button mat-menu-item (click)="openStock(row)">
+        <mat-icon>inventory</mat-icon>
+        Agregar stock
+      </button>
+    </ng-template>
+  </mat-menu>
+
+</div>

@@ -1,0 +1,231 @@
+<div class="detail-page">
+
+  @if (loading()) {
+    <div class="loading-state">
+      <mat-spinner diameter="40" />
+    </div>
+  }
+
+  @if (!loading() && product(); as p) {
+
+    <!-- Header -->
+    <div class="detail-header">
+      <div class="header-left">
+        <button class="btn-back" (click)="goBack()">
+          <mat-icon>arrow_back</mat-icon>
+          Productos
+        </button>
+        <nav class="breadcrumb">
+          <span>PharmaControl</span>
+          <mat-icon>chevron_right</mat-icon>
+          <span>Catálogo</span>
+          <mat-icon>chevron_right</mat-icon>
+          <span (click)="goBack()" class="bc-link">Productos</span>
+          <mat-icon>chevron_right</mat-icon>
+          <span class="bc-active">{{ p.name }}</span>
+        </nav>
+      </div>
+      <div class="header-actions">
+        @if (canEdit()) {
+          <button class="btn-secondary" (click)="openImages()">
+            <mat-icon>photo_library</mat-icon>
+            Imágenes
+          </button>
+          <button class="btn-secondary" (click)="openEdit()">
+            <mat-icon>edit</mat-icon>
+            Editar
+          </button>
+        }
+        @if (canDeactivate() && p.is_active) {
+          <button class="btn-danger" (click)="deactivate()">
+            <mat-icon>block</mat-icon>
+            Desactivar
+          </button>
+        }
+      </div>
+    </div>
+
+    <!-- Body -->
+    <div class="detail-body">
+
+      <!-- Galería -->
+      <div class="gallery-panel">
+        <div class="gallery-main">
+          @if (activeImg()) {
+            <img [src]="activeImg()!.url" [alt]="p.name" class="main-img" />
+          } @else {
+            <div class="img-placeholder">
+              <mat-icon>medication</mat-icon>
+            </div>
+          }
+        </div>
+        @if (p.images?.length > 1) {
+          <div class="gallery-thumbs">
+            @for (img of p.images; track img.id) {
+              <div class="thumb"
+                   [class.active]="activeImg()?.id === img.id"
+                   (click)="setActiveImg(img)">
+                <img [src]="img.url" [alt]="p.name" />
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Info panel -->
+      <div class="info-panel">
+
+        <!-- Nombre y badges -->
+        <div class="product-title-row">
+          <h1 class="product-name">{{ p.name }}</h1>
+          <span class="status-pill" [class.inactive]="!p.is_active">
+            {{ p.is_active ? 'Activo' : 'Inactivo' }}
+          </span>
+        </div>
+
+        <div class="badge-row">
+          <span class="type-badge type-{{ p.type.toLowerCase() }}">{{ p.type_label }}</span>
+          <span class="sale-badge sale-{{ p.sale_condition.toLowerCase() }}">{{ p.sale_condition_label }}</span>
+        </div>
+
+        <!-- Stats cards -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <mat-icon>inventory_2</mat-icon>
+            <div>
+              <span class="stat-label">Stock mín / máx</span>
+              <span class="stat-value">{{ p.stock_config.min_stock }} / {{ p.stock_config.max_stock }}</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <mat-icon>schedule</mat-icon>
+            <div>
+              <span class="stat-label">Alerta vencimiento</span>
+              <span class="stat-value">{{ p.stock_config.expiry_alert_days }} días</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <mat-icon>percent</mat-icon>
+            <div>
+              <span class="stat-label">Margen minorista</span>
+              <span class="stat-value">{{ p.margins.retail_margin }}%</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <mat-icon>layers</mat-icon>
+            <div>
+              <span class="stat-label">Por lotes</span>
+              <span class="stat-value" [class.yes]="p.stock_config.manage_lots" [class.no]="!p.stock_config.manage_lots">
+                {{ p.stock_config.manage_lots ? 'Sí' : 'No' }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+          <button class="tab-btn" [class.active]="activeTab() === 'general'" (click)="setTab('general')">General</button>
+          <button class="tab-btn" [class.active]="activeTab() === 'specs'" (click)="setTab('specs')">Especificaciones</button>
+          <button class="tab-btn" [class.active]="activeTab() === 'ingredients'" (click)="setTab('ingredients')">
+            Ingredientes
+            @if (p.ingredients?.length) {
+              <span class="tab-count">{{ p.ingredients.length }}</span>
+            }
+          </button>
+        </div>
+
+        <!-- Tab: General -->
+        @if (activeTab() === 'general') {
+          <div class="tab-content">
+            @if (p.description) {
+              <div class="detail-row">
+                <span class="detail-label">Descripción</span>
+                <span class="detail-value description">{{ p.description }}</span>
+              </div>
+            }
+            <div class="detail-row">
+              <span class="detail-label">Condición de venta</span>
+              <span class="detail-value">{{ p.sale_condition_label }}</span>
+            </div>
+            @if (p.specs.sanitary_reg) {
+              <div class="detail-row">
+                <span class="detail-label">Registro sanitario</span>
+                <span class="detail-value">{{ p.specs.sanitary_reg }}</span>
+              </div>
+            }
+            @if (p.specs.barcode) {
+                <div class="detail-row">
+                    <span class="detail-label">Código de barras</span>
+                    <span class="detail-value mono">{{ p.specs.barcode }}</span>
+                </div>
+            }
+            <div class="detail-row">
+              <span class="detail-label">Fraccionamiento</span>
+              <span class="detail-value" [class.yes]="p.stock_config.allow_fraction" [class.no]="!p.stock_config.allow_fraction">
+                {{ p.stock_config.allow_fraction ? 'Permitido' : 'No permitido' }}
+              </span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Margen mayorista</span>
+              <span class="detail-value">{{ p.margins.wholesale_margin }}%</span>
+            </div>
+          </div>
+        }
+
+        <!-- Tab: Especificaciones -->
+        @if (activeTab() === 'specs') {
+          <div class="tab-content">
+            <div class="detail-row">
+              <span class="detail-label">Unidades por caja</span>
+              <span class="detail-value">{{ p.specs.units_per_box }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Unidades por blister</span>
+              <span class="detail-value">{{ p.specs.units_per_blister }}</span>
+            </div>
+            @if (p.specs.sanitary_reg) {
+              <div class="detail-row">
+                <span class="detail-label">Registro sanitario</span>
+                <span class="detail-value">{{ p.specs.sanitary_reg }}</span>
+              </div>
+            }
+            @if (p.specs.barcode) {
+              <div class="detail-row">
+                <span class="detail-label">Código de barras</span>
+                <span class="detail-value mono">{{ p.specs.barcode }}</span>
+              </div>
+            }
+          </div>
+        }
+
+        <!-- Tab: Ingredientes -->
+        @if (activeTab() === 'ingredients') {
+          <div class="tab-content">
+            @if (!p.ingredients?.length) {
+              <p class="empty-ingredients">Este producto no tiene ingredientes activos registrados.</p>
+            } @else {
+              <table class="ingredients-table">
+                <thead>
+                  <tr>
+                    <th>Ingrediente</th>
+                    <th>Concentración</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (ing of p.ingredients; track ing.ingredient_id) {
+                    <tr>
+                      <td>{{ ing.ingredient_name ?? ing.ingredient_id }}</td>
+                      <td>{{ ing.concentration }} {{ ing.concentration_unit }}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            }
+          </div>
+        }
+
+      </div>
+    </div>
+  }
+
+</div>

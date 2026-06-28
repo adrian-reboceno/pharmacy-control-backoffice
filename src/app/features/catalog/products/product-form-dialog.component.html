@@ -1,0 +1,262 @@
+<div class="dialog-header">
+  <h2>{{ isEdit ? 'Editar producto' : 'Nuevo producto' }}</h2>
+  <button mat-icon-button mat-dialog-close>
+    <mat-icon>close</mat-icon>
+  </button>
+</div>
+
+<form [formGroup]="form" (ngSubmit)="submit()">
+  <div mat-dialog-content class="dialog-content">
+    <mat-tab-group animationDuration="150ms">
+
+      <!-- ── Tab 1: General ─────────────────────────────── -->
+      <mat-tab label="General">
+        <div class="tab-content">
+          <div class="row-2">
+            <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
+              <mat-label>Tipo</mat-label>
+              <mat-select formControlName="type">
+                <mat-option value="GENERIC">Genérico</mat-option>
+                <mat-option value="BRANDED">Marca comercial</mat-option>
+              </mat-select>
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
+              <mat-label>Condición de venta</mat-label>
+              <mat-select formControlName="sale_condition">
+                <mat-option value="SIN_RECETA">Sin receta</mat-option>
+                <mat-option value="CON_RECETA">Con receta</mat-option>
+                <mat-option value="CON_RECETA_RETENIDA">Receta retenida</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+          <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
+            <mat-label>Nombre del producto</mat-label>
+            <input matInput formControlName="name" maxlength="200" />
+            @if (form.get('name')?.hasError('required') && form.get('name')?.touched) {
+              <mat-error>El nombre es requerido</mat-error>
+            }
+            @if (form.get('name')?.hasError('serverError')) {
+              <mat-error>{{ form.get('name')?.getError('serverError') }}</mat-error>
+            }
+          </mat-form-field>
+
+          <div class="row-2">
+            <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
+              <mat-label>Estado</mat-label>
+              <mat-select formControlName="status_id">
+                @for (s of catalogs().statuses; track s.id) {
+                  <mat-option [value]="s.id">{{ s.name }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
+              <mat-label>Categoría</mat-label>
+              <mat-select formControlName="category_id">
+                @for (c of catalogs().categories; track c.id) {
+                  <mat-option [value]="c.id">{{ c.indent }}{{ c.name }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+          <div class="row-2">
+            <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
+              <mat-label>Laboratorio</mat-label>
+              <mat-select formControlName="laboratory_id">
+                <mat-option [value]="null">Sin laboratorio</mat-option>
+                @for (l of catalogs().laboratories; track l.id) {
+                  <mat-option [value]="l.id">{{ l.name }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
+              <mat-label>Registro sanitario</mat-label>
+              <input matInput formControlName="sanitary_reg" />
+              <mat-hint>Opcional</mat-hint>
+            </mat-form-field>
+          </div>
+
+          <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
+            <mat-label>Descripción</mat-label>
+            <textarea matInput formControlName="description" rows="3" maxlength="1000"></textarea>
+            <mat-hint>Opcional — máx. 1000 caracteres</mat-hint>
+          </mat-form-field>
+        </div>
+      </mat-tab>
+
+      <!-- ── Tab 2: Especificaciones ────────────────────── -->
+      <mat-tab label="Especificaciones">
+        <div class="tab-content">
+          <div class="row-3">
+            <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
+              <mat-label>Unidad de medida</mat-label>
+              <mat-select formControlName="unit_id">
+                @for (u of catalogs().units; track u.id) {
+                  <mat-option [value]="u.id">{{ u.name }} ({{ u['symbol'] }})</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
+              <mat-label>Presentación</mat-label>
+              <mat-select formControlName="presentation_id">
+                @for (p of catalogs().presentations; track p.id) {
+                  <mat-option [value]="p.id">{{ p.name }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
+              <mat-label>Vía de administración</mat-label>
+              <mat-select formControlName="route_id">
+                @for (r of catalogs().routes; track r.id) {
+                  <mat-option [value]="r.id">{{ r.name }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+          <div class="row-2">
+            <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
+              <mat-label>Unidades por caja</mat-label>
+              <input matInput formControlName="units_per_box" type="number" min="1" />
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
+              <mat-label>Unidades por blister</mat-label>
+              <input matInput formControlName="units_per_blister" type="number" min="1" />
+            </mat-form-field>
+          </div>
+
+          <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
+            <mat-label>Código de barras (EAN-13)</mat-label>
+            <input matInput formControlName="barcode" maxlength="13" placeholder="13 dígitos" />
+            <mat-hint>Opcional — exactamente 13 dígitos numéricos</mat-hint>
+            @if (form.get('barcode')?.hasError('pattern')) {
+              <mat-error>Debe ser exactamente 13 dígitos numéricos</mat-error>
+            }
+            @if (form.get('barcode')?.hasError('serverError')) {
+              <mat-error>{{ form.get('barcode')?.getError('serverError') }}</mat-error>
+            }
+          </mat-form-field>
+        </div>
+      </mat-tab>
+
+      <!-- ── Tab 3: Inventario ──────────────────────────── -->
+      <mat-tab label="Inventario">
+        <div class="tab-content">
+          <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
+            <mat-label>Ubicación (Posición)</mat-label>
+            <mat-select formControlName="location_id">
+              <mat-option [value]="null">Sin ubicación asignada</mat-option>
+              @for (loc of catalogs().locations; track loc.id) {
+                <mat-option [value]="loc.id">{{ loc['full_path'] }}</mat-option>
+              }
+            </mat-select>
+            <mat-hint>Solo se muestran las Posiciones (nivel 4)</mat-hint>
+          </mat-form-field>
+
+          <div class="row-3">
+            <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
+              <mat-label>Stock mínimo</mat-label>
+              <input matInput formControlName="min_stock" type="number" min="0" />
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
+              <mat-label>Stock máximo</mat-label>
+              <input matInput formControlName="max_stock" type="number" min="1" />
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
+              <mat-label>Alerta vencimiento (días)</mat-label>
+              <input matInput formControlName="expiry_alert_days" type="number" min="1" />
+            </mat-form-field>
+          </div>
+
+          <div class="row-2">
+            <div class="toggle-field">
+              <span>Manejo por lotes</span>
+              <mat-slide-toggle formControlName="manage_lots"></mat-slide-toggle>
+            </div>
+            <div class="toggle-field">
+              <span>Permitir fraccionamiento</span>
+              <mat-slide-toggle formControlName="allow_fraction"></mat-slide-toggle>
+            </div>
+          </div>
+
+          @if (canPrice()) {
+            <div class="row-2">
+              <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
+                <mat-label>Margen minorista (%)</mat-label>
+                <input matInput formControlName="retail_margin" type="number" min="0" max="100" />
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
+                <mat-label>Margen mayorista (%)</mat-label>
+                <input matInput formControlName="wholesale_margin" type="number" min="0" max="100" />
+              </mat-form-field>
+            </div>
+          }
+        </div>
+      </mat-tab>
+
+      <!-- ── Tab 4: Ingredientes ────────────────────────── -->
+      <mat-tab label="Ingredientes activos">
+        <div class="tab-content">
+          <div class="ingredients-header">
+            <span class="ingredients-hint">Agrega los ingredientes activos del producto con su concentración.</span>
+            <button type="button" class="btn-add-ingredient" (click)="addIngredient()">
+              <mat-icon>add</mat-icon>
+              Agregar ingrediente
+            </button>
+          </div>
+
+          @if (ingredientsArray.length === 0) {
+            <div class="ingredients-empty">
+              <mat-icon>science</mat-icon>
+              <span>Sin ingredientes — opcional para productos OTC</span>
+            </div>
+          }
+
+          <div formArrayName="ingredients">
+            @for (ing of ingredientsArray.controls; track $index) {
+              <div [formGroupName]="$index" class="ingredient-row">
+                <mat-form-field appearance="outline" class="ing-name" subscriptSizing="dynamic">
+                  <mat-label>Ingrediente activo</mat-label>
+                  <mat-select formControlName="ingredient_id">
+                    @for (i of catalogs().ingredients; track i.id) {
+                      <mat-option [value]="i.id">{{ i.name }} ({{ i['dci_code'] }})</mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="ing-conc" subscriptSizing="dynamic">
+                  <mat-label>Concentración</mat-label>
+                  <input matInput formControlName="concentration" type="number" min="0" />
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="ing-unit" subscriptSizing="dynamic" floatLabel="always">
+                  <mat-label>Unidad</mat-label>
+                  <mat-select formControlName="concentration_unit">
+                    @for (u of catalogs().concentrationUnits; track u.id) {
+                      <mat-option [value]="u['symbol']">{{ u['symbol'] }}</mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+                <button type="button" class="btn-remove-ingredient" (click)="removeIngredient($index)"
+                        matTooltip="Eliminar">
+                  <mat-icon>delete_outline</mat-icon>
+                </button>
+              </div>
+            }
+          </div>
+        </div>
+      </mat-tab>
+
+    </mat-tab-group>
+  </div>
+
+  <div mat-dialog-actions align="end" class="dialog-actions">
+    <button type="button" mat-stroked-button mat-dialog-close>Cancelar</button>
+    <button type="submit" mat-flat-button color="primary" [disabled]="form.invalid || saving()">
+      @if (saving()) {
+        <mat-spinner diameter="18" strokeWidth="2" />
+      } @else {
+        {{ isEdit ? 'Guardar cambios' : 'Crear producto' }}
+      }
+    </button>
+  </div>
+</form>

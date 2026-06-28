@@ -83,19 +83,19 @@ export class AlertService {
     }).then(result => result.isConfirmed);
   }
 
-  confirmDelete(itemName: string): Promise<boolean> {
-    return Swal.fire({
-      ...this.baseConfig,
-      icon:  'warning',
-      title: '¿Desactivar registro?',
-      text:  `${itemName} será marcado como inactivo. Podrás reactivarlo después.`,
-      showCancelButton:  true,
-      confirmButtonText: 'Sí, desactivar',
-      cancelButtonText:  'Cancelar',
-      confirmButtonColor: '#f06548',
-      reverseButtons:    true,
-    }).then(result => result.isConfirmed);
-  }
+ confirmDelete(itemName: string): Promise<boolean> {
+  return Swal.fire({
+    ...this.baseConfig,
+    icon:  'warning',
+    title: '¿Desactivar registro?',
+    text:  `${itemName} será marcado como inactivo. Podrás reactivarlo después.`,
+    showCancelButton:  true,
+    confirmButtonText: 'Sí, desactivar',
+    cancelButtonText:  'Cancelar',
+    confirmButtonColor: '#f06548',
+    reverseButtons:    true,
+  }).then(result => result.isConfirmed);
+}
 
   /** Toast no intrusivo — esquina superior derecha, auto-cierra */
   toast(message: string, icon: 'success' | 'info' | 'warning' | 'error' = 'success') {
@@ -111,6 +111,10 @@ export class AlertService {
       showConfirmButton: false,
       didOpen: () => Swal.showLoading(),
     });
+  }
+
+  private getSwalContainer(): HTMLElement {
+    return document.querySelector('.cdk-overlay-container') as HTMLElement ?? document.body;
   }
 
   close() {
