@@ -73,6 +73,18 @@ export const routes: Routes = [
           import('./features/catalog/suppliers/suppliers-list.component').then(m => m.SuppliersListComponent),
       },
       {
+        path: 'catalog/products/:id',
+        canActivate: [permissionGuard('catalog.products.view')],
+        loadComponent: () =>
+          import('./features/catalog/products/product-detail.component').then(m => m.ProductDetailComponent),
+      },
+      {
+        path: 'catalog/products',
+        canActivate: [permissionGuard('catalog.products.view')],
+        loadComponent: () =>
+          import('./features/catalog/products/products-list.component').then(m => m.ProductsListComponent),
+      },
+      {
         path: 'catalog/locations',
         canActivate: [permissionGuard('catalog.locations.manage')],
         loadComponent: () =>

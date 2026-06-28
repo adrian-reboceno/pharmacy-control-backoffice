@@ -109,3 +109,10 @@ body {
 }
 .icon-btn:hover { background: #e9ebec; color: #405189; }
 .icon-btn.danger:hover { background: #fde8e4; color: #f06548; }
+
+
+.cdk-overlay-container {
+  .swal2-container {
+    z-index: 100000 !important;
+  }
+}

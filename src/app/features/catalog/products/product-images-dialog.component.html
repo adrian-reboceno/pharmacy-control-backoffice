@@ -1,0 +1,66 @@
+<div class="images-dialog">
+
+  <div mat-dialog-title class="dialog-header">
+    <h2>Imágenes del producto</h2>
+    <button class="icon-btn" mat-dialog-close>
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <div mat-dialog-content class="dialog-content">
+    <p class="product-name">{{ data.product.name }}</p>
+
+    <div class="images-grid">
+
+      @for (img of images(); track img.id) {
+        <div class="img-card" [class.primary]="img.is_primary">
+          <img [src]="imageUrl(img.url)" [alt]="data.product.name" />
+          @if (img.is_primary) {
+            <span class="primary-badge">Principal</span>
+          }
+         
+          <div class="img-overlay">
+            <button class="icon-btn-overlay"
+                    [class.confirming]="confirmingId() === img.id"
+                    [disabled]="deletingId() === img.id"
+                    (click)="deleteImage(img)"
+                    [matTooltip]="confirmingId() === img.id ? 'Click para confirmar' : 'Eliminar'">
+              @if (deletingId() === img.id) {
+                <mat-spinner diameter="18" />
+              } @else if (confirmingId() === img.id) {
+                <mat-icon>check</mat-icon>
+              } @else {
+                <mat-icon>delete</mat-icon>
+              }
+            </button>
+          </div>
+        </div>
+      }
+
+      <!-- Card de subida -->
+      <label class="img-upload-card" [class.disabled]="uploading()">
+        @if (uploading()) {
+          <mat-spinner diameter="28" />
+          <span>Subiendo...</span>
+        } @else {
+          <mat-icon>add_photo_alternate</mat-icon>
+          <span>Agregar</span>
+        }
+        <input type="file" accept="image/*" multiple
+               [disabled]="uploading()"
+               (change)="onFileSelected($event)"
+               hidden />
+      </label>
+
+    </div>
+
+    @if (images().length === 0 && !uploading()) {
+      <p class="empty-hint">Este producto aún no tiene imágenes.</p>
+    }
+  </div>
+
+  <div mat-dialog-actions align="end" class="dialog-actions">
+    <button class="btn-primary" (click)="close()">Listo</button>
+  </div>
+
+</div>
